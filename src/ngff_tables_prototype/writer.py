@@ -19,6 +19,7 @@ def write_table(
 ):
     """code from: https://github.com/theislab/anndata/blob/0.7.8/anndata/_io/zarr.py
     """
+    group.store.normalize_keys = False
     if adata.raw is not None:
         adata.strings_to_categoricals(adata.raw.var)
     # TODO: Use spec writing system for this
@@ -37,6 +38,8 @@ def write_table(
     write_attribute(group, "layers", adata.layers, dataset_kwargs)
     write_attribute(group, "uns", adata.uns, dataset_kwargs)
     write_attribute(group, "raw", adata.raw, dataset_kwargs)
+
+    group.store.normalize_keys = True
 
 
 def write_points_dataset(

@@ -1,3 +1,4 @@
+from anndata._io.zarr import read_zarr
 import numpy as np
 import pandas as pd
 
@@ -31,3 +32,9 @@ write_points_dataset(
     points_dense_columns=['y', 'x'],
     points_var=var
 )
+
+# reload the points object
+anndata_obj = read_zarr('test_image/points')
+
+# confirm the data are the same
+np.testing.assert_almost_equal(points_coords, anndata_obj.X, decimal=5)
