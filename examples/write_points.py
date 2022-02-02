@@ -37,4 +37,4 @@ write_points_dataset(
 anndata_obj = read_zarr('test_image/points')
 
 # confirm the data are the same
-np.testing.assert_almost_equal(points_coords, anndata_obj.X, decimal=5)
+np.testing.assert_almost_equal(points_coords, anndata_obj.X)
