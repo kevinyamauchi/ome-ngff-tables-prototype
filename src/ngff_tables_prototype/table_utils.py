@@ -33,7 +33,7 @@ def df_to_anndata(
     obs = df.drop(dense_columns, axis='columns')
 
     # create the AnnData object
-    ann_data_kwargs = {'X': dense_array, 'obs': obs}
+    ann_data_kwargs = {'X': dense_array, 'obs': obs, 'dtype': dense_array.dtype}
     if var is not None:
         ann_data_kwargs['var'] = var
     ann_obj = AnnData(**ann_data_kwargs)
