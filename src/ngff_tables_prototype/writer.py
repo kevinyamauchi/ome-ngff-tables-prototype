@@ -11,6 +11,7 @@ import zarr
 
 from .table_utils import df_to_anndata
 
+
 def write_table(
         group: zarr.Group,
         adata: AnnData,
@@ -19,7 +20,10 @@ def write_table(
 ):
     """code from: https://github.com/theislab/anndata/blob/0.7.8/anndata/_io/zarr.py
     """
+    # AnnData requires an upper case key for X
+    # todo: make context manager?
     group.store.normalize_keys = False
+
     if adata.raw is not None:
         adata.strings_to_categoricals(adata.raw.var)
     # TODO: Use spec writing system for this
@@ -39,6 +43,7 @@ def write_table(
     write_attribute(group, "uns", adata.uns, dataset_kwargs)
     write_attribute(group, "raw", adata.raw, dataset_kwargs)
 
+    # revert the store to normalizing keys
     group.store.normalize_keys = True
 
 
