@@ -1,0 +1,5 @@
+{
+    "@type": "ngff:points",
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0"
+}
