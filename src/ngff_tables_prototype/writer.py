@@ -106,4 +106,4 @@ def write_points_dataset(
         write_table(points_group, points_anndata)
 
         # add a flag to the group attrs to denote this is points data
-        points_group.attrs['points'] = True
+        points_group.attrs['@type'] = 'ngff:points'
