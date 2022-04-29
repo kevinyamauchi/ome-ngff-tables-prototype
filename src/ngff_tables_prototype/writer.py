@@ -118,8 +118,9 @@ def write_spatial_anndata(
     label_image: Optional[np.ndarray]=None,
     label_group_name: str = "labels",
     label_name: str = "labels",
-    adata: Optional[anndata.AnnData]=None,
-    table_group_name: str = "table"
+    label_column : Optional[str] = "cell_id",
+    adata: Optional[anndata.AnnData] =None,
+    table_group_name: str = "table",
 ):
     """ Write a spatial anndata object to ome-zarr
     Parameters
@@ -156,9 +157,11 @@ def write_spatial_anndata(
         )
 
     if adata is not None:
-        table_group = root.create_group(table_group_name)
-        write_table(table_group, adata)
+        from anndata.experimental import write_elem
 
+        # write_table(table_group, adata)
+        write_elem(root, table_group_name, adata)
+        table_group = root[table_group_name]
         table_group.attrs["@type"] = "ngff:table"
         table_group.attrs["label"] = label_group_name
-        table_group.attrs["label_column"] = "cell_id"
+        table_group.attrs["label_column"] = label_column
