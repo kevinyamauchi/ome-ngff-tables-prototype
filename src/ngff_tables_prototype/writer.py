@@ -1,11 +1,12 @@
 from typing import Optional, Union, Tuple, Any, List, Dict
 
+import anndata
 from anndata import AnnData
 from anndata._io.utils import write_attribute
 import numpy as np
 import pandas as pd
 from ome_zarr.io import parse_url
-from ome_zarr.writer import write_image
+from ome_zarr.writer import write_image, write_labels
 from scipy import sparse
 import zarr
 
@@ -107,3 +108,57 @@ def write_points_dataset(
 
         # add a flag to the group attrs to denote this is points data
         points_group.attrs['@type'] = 'ngff:points'
+
+
+def write_spatial_anndata(
+    file_path: str,
+    image: Optional[np.ndarray]=None,
+    image_chunks: Union[Tuple[Any, ...], int] = None,
+    image_axes: Union[str, List[str]] = None,
+    label_image: Optional[np.ndarray]=None,
+    label_group_name: str = "labels",
+    label_name: str = "labels",
+    adata: Optional[anndata.AnnData]=None,
+    table_group_name: str = "table"
+):
+    """ Write a spatial anndata object to ome-zarr
+    Parameters
+    ----------
+    file_path : str
+        path to save the zarr file
+    image : Optional[np.ndarray]
+        image array to save. if None, no image is saved.
+        Default value is None.
+    image_chunks : Union[Tuple[Any, ...], int]
+        Chunking for the image data. See ome-zarr-py for details.
+    image_axes : Union[str, List[str]]
+        The labels for the image axes. See ome-zarr-py for details.
+    """
+    # create the zarr root
+    store = parse_url(file_path, mode="w").store
+    root = zarr.group(store=store)
+
+    if image is not None:
+        # if necessary add the image
+        write_image(
+            image=image,
+            group=root,
+            chunks=image_chunks,
+            axes=image_axes
+        )
+
+    if label_image is not None:
+        label_image_group = root.create_group(label_group_name)
+        write_labels(
+            label_image,
+            group=label_image_group,
+            name=label_name
+        )
+
+    if adata is not None:
+        table_group = root.create_group(table_group_name)
+        write_table(table_group, adata)
+
+        table_group.attrs["@type"] = "ngff:table"
+        table_group.attrs["label"] = label_group_name
+        table_group.attrs["label_column"] = "cell_id"
