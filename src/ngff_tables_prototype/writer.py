@@ -149,10 +149,10 @@ def write_spatial_anndata(
         )
 
     if label_image is not None:
-        label_image_group = root.create_group(label_group_name)
+        # label_image_group = root.create_group(label_group_name)
         write_labels(
             label_image,
-            group=label_image_group,
+            group=root,
             name=label_name
         )
 
