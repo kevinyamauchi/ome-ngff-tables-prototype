@@ -125,7 +125,7 @@ def write_spatial_anndata(
     image_axes: Union[str, List[str]] = None,
     # label group
     label_image: Optional[np.ndarray] = None,
-    # label_name: str = "label_image",
+    label_name: str = "label_image",
     # table group
     tables_adata: Optional[AnnData] = None,
     tables_region: Optional[Union[str, List[str]]] = None,
@@ -149,6 +149,8 @@ def write_spatial_anndata(
         Chunking for the image data. See ome-zarr-py for details.
     image_axes : Union[str, List[str]]
         The labels for the image axes. See ome-zarr-py for details.
+    label_name : Union[str, List[str]]
+        The name of the label image. See ome-zarr-py for details.
     label_image : Union[str, List[str]]
         The label image (raster-mask). See ome-zarr-py for details.
     tables_adata:
@@ -184,24 +186,24 @@ def write_spatial_anndata(
 
     if tables_adata is not None:
         write_table_regions(
+            root,
             tables_adata,
-            group=root,
-            tables_region=tables_region,
-            tables_region_key=tables_region_key,
-            tables_instance_key=tables_instance_key,
+            region=tables_region,
+            region_key=tables_region_key,
+            instance_key=tables_instance_key,
         )
     if circles_adata is not None:
-        write_table_regions(
+        write_table_circles(
+            root,
             circles_adata,
-            group=root,
         )
     if polygons_adata is not None:
-        write_table_regions(
+        write_table_polygons(
+            root,
             polygons_adata,
-            group=root,
         )
     if points_adata is not None:
-        write_table_regions(
+        write_table_points(
+            root,
             points_adata,
-            group=root,
         )
