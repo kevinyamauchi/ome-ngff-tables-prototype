@@ -130,3 +130,5 @@ dmypy.json
 
 # zarr stores
 *.zarr
+# other things
+.idea
