@@ -3,7 +3,7 @@ from ngff_tables_prototype.writer import write_spatial_anndata
 import numpy as np
 
 
-def write_segment_adata() -> None:
+def write_segmentation_adata() -> None:
     adata = sq.datasets.mibitof()
     lib_id = "point8"
     spatial_key = "spatial"
@@ -26,4 +26,4 @@ def write_segment_adata() -> None:
 
 
 if __name__ == "__main__":
-    write_segment_adata()
+    write_segmentation_adata()
