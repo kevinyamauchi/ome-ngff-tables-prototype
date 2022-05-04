@@ -1,4 +1,10 @@
 ##
+# the best is to run this .py file as a script, if you want you can also to convert it to a jupyter notebook with
+# jupytext --to notebook merfish.py
+# When runnning the notebook the working directory should be the project root folder otherwise the data paths will be
+# not found (use os.chdir(<project root path>)
+
+##
 import pandas as pd
 import numpy as np
 import anndata as ad
@@ -13,41 +19,45 @@ import math
 plt.style.use("dark_background")
 
 ##
-output_dir = 'notebooks/merfish/output'
-os.makedirs(output_dir)
+output_dir = "notebooks/merfish/output"
+os.makedirs(output_dir, exist_ok=True)
 
 ##
 class BoundingBox:
     pass
 
 
+small_bb = BoundingBox()
+small_bb.x0 = 2000
+small_bb.x1 = 2400
+small_bb.y0 = 4800
+small_bb.y1 = 5200
+
 bb = BoundingBox()
-bb.x0 = 2000
-bb.x1 = 2400
-bb.y0 = 4800
-bb.y1 = 5200
-# bb.x0 = 1600
-# bb.x1 = 2900
-# bb.y0 = 5100
-# bb.y1 = 6400
+bb.x0 = 1154
+bb.x1 = 3172
+bb.y0 = 4548
+bb.y1 = 6566
+
 
 ##
 
 # loads point data
 df = pd.read_csv("notebooks/merfish/data/Allen_MERFISH_spots_with_anatomy.csv")
 plt.figure(figsize=(10, 10))
+points_bb = bb
 df = df[
-    (df["x_um"] > bb.x0)
-    & (df["x_um"] < bb.x1)
-    & (df["y_um"] > bb.y0)
-    & (df["y_um"] < bb.y1)
+    (df["x_um"] > points_bb.x0)
+    & (df["x_um"] < points_bb.x1)
+    & (df["y_um"] > points_bb.y0)
+    & (df["y_um"] < points_bb.y1)
 ]
 xy = df[["x_um", "y_um"]].to_numpy()
-a_points = ad.AnnData(obs=list(range(len(xy))))
-a_points.obsm["spatial"] = xy
+a_points = ad.AnnData(xy)
+# a_points.obsm["spatial"] = xy
 a_points.obsm["cell_type"] = df["layer"].to_numpy()
-a_points.obs.columns = ['0']
-a_points.write_h5ad(os.path.join(output_dir, 'points.h5ad'))
+# a_points.obs.columns = ["0"]
+a_points.write_h5ad(os.path.join(output_dir, "points.h5ad"))
 
 ##
 plt.figure()
@@ -57,7 +67,7 @@ plt.show()
 
 ##
 def plot_single_molecule_anndata(adata: ad.AnnData, ax=None):
-    xy = adata.obsm["spatial"]
+    xy = adata.X
     c = adata.obsm["cell_type"]
     if ax is None:
         plt.figure(figsize=(10, 10))
@@ -85,7 +95,7 @@ xy = df[["x_um", "y_um"]].to_numpy()
 a_cells = ad.AnnData(X=df[genes])
 a_cells.obsm["spatial"] = xy
 a_cells.obsm["region_radius"] = df["radius"].to_numpy()
-a_cells.write_h5ad(os.path.join(output_dir, 'cells.h5ad'))
+a_cells.write_h5ad(os.path.join(output_dir, "cells.h5ad"))
 
 ##
 def plot_shape_masks_anndata(adata: ad.AnnData, ax=None):
@@ -120,17 +130,18 @@ import datashader
 import colorcet
 
 df = pd.read_csv("notebooks/merfish/data/Allen_MERFISH_spots_with_anatomy.csv")
-df['datashader'] = np.array([1] * len(df))
+df["datashader"] = np.array([1] * len(df))
 raster_w = 600
 raster_h = 600
 cvs = datashader.Canvas(plot_width=raster_w, plot_height=raster_h)
-agg = cvs.points(df, x="x_um", y="y_um", agg=datashader.any())
+# agg = cvs.points(df, x="x_um", y="y_um", agg=datashader.any())
+agg = cvs.points(df, x="x_um", y="y_um", agg=datashader.count())
 # img = datashader.tf.shade(agg)
 # raster = img.to_numpy()
 raster = agg.to_numpy()
 raster = raster.astype(np.float64)
 raster /= raster.max()
-raster = np.flipud(raster)
+# raster = np.flipud(raster)
 # raster = np.log(1 + raster)
 
 plt.figure()
@@ -139,12 +150,17 @@ len(df)
 plt.hist(raster)
 # plt.hist(raster.flatten()[raster.flatten() >1000], bins=1000)
 plt.show()
+
 ##
-plt.figure()
-plt.imshow(raster)
-# plt.xlim([400, 600])
-# plt.ylim([0, 200])
-plt.show()
+# let's manually adjust the levels to make the image brighter in this example
+raster = np.clip(raster, a_min=0.0, a_max=0.2)
+raster *= 5
+#
+# plt.figure()
+# plt.imshow(raster, origin='lower')
+# plt.xlim([400, 425])
+# plt.ylim([175, 200])
+# plt.show()
 
 
 ##
@@ -152,6 +168,7 @@ plt.figure()
 plt.imshow(
     raster,
     extent=(df["x_um"].min(), df["x_um"].max(), df["y_um"].min(), df["y_um"].max()),
+    origin="lower",
 )
 plt.scatter(df["x_um"], df["y_um"], s=1, alpha=0.01)
 plt.show()
@@ -171,46 +188,51 @@ print(
     f"raster_bb.x0 = {raster_bb.x0}, raster_bb.x1 = {raster_bb.x1}, raster_bb.y0 = {raster_bb.y0}, raster_bb.y1 = {raster_bb.y1}"
 )
 
-raster_crop = np.flipud(np.flipud(raster)[raster_bb.y0 : raster_bb.y1, raster_bb.x0 : raster_bb.x1])
+# raster_crop = np.flipud(np.flipud(raster)[raster_bb.y0 : raster_bb.y1, raster_bb.x0 : raster_bb.x1])
+raster_crop = raster[raster_bb.y0 : raster_bb.y1, raster_bb.x0 : raster_bb.x1]
 print(raster_crop.shape)
 
 plt.figure()
-plt.imshow(raster_crop)
+plt.imshow(raster_crop, origin="lower")
 plt.show()
 ##
 translation = np.array([bb.x0, bb.y0])
-# expecting the scale factor to be the same in both axes, and checking this
-assert bb.x1 - bb.x0 == bb.y1 - bb.y0
-assert raster_w == raster_h
-scale_factor = (bb.x1 - bb.x0) / raster_w
+# assert bb.x1 - bb.x0 == bb.y1 - bb.y0
+# assert raster_w == raster_h
+scale_factor_x = (max_x - min_x) / raster_w
+scale_factor_y = (max_y - min_y) / raster_h
+scale_factors = np.array([scale_factor_x, scale_factor_y])
+# wrong
+# scale_factor = (bb.x1 - bb.x0) / raster_w
 ##
-np.save(os.path.join(output_dir, 'image.np'), raster_crop)
+np.save(os.path.join(output_dir, "image"), raster_crop)
 
 d = {}
-d['translation_x'] = float(translation[0])
-d['translation_y'] = float(translation[1])
-d['scale_factor'] = scale_factor
-with open(os.path.join(output_dir, 'image_transform.json'), 'w') as outfile:
+d["translation_x"] = float(translation[0])
+d["translation_y"] = float(translation[1])
+d["scale_factor_x"] = scale_factor_x
+d["scale_factor_y"] = scale_factor_y
+with open(os.path.join(output_dir, "image_transform.json"), "w") as outfile:
     json.dump(d, fp=outfile)
 
 ##
-print(f"translation = {translation}, scale_factor = {scale_factor}")
+print(f"translation = {translation}, scale_factor = {scale_factors}")
 x0 = translation[0]
 y0 = translation[1]
-x1 = translation[0] + raster.shape[1] * scale_factor
-y1 = translation[1] + raster.shape[0] * scale_factor
+x1 = translation[0] + raster.shape[1] * scale_factor_x
+y1 = translation[1] + raster.shape[0] * scale_factor_y
 extent = (x0, x1, y0, y1)
 print(extent)
 
 plt.figure()
-plt.imshow(raster_crop, extent=extent)
+plt.imshow(raster_crop, extent=extent, origin="lower")
 plt.show()
 ##
 
 
 # first translation, then scaling
 def plot_raster(
-    raster: np.ndarray, translation: np.array, scale_factor: float, ax=None
+    raster: np.ndarray, translation: np.array, scale_factors: np.array, ax=None
 ):
     assert len(translation) == 2
     # grayscale image or rgb/rgba
@@ -224,33 +246,42 @@ def plot_raster(
         cax = ax
     x0 = translation[0]
     y0 = translation[1]
-    x1 = translation[0] + raster.shape[1] * scale_factor
-    y1 = translation[1] + raster.shape[0] * scale_factor
+    x1 = translation[0] + raster.shape[1] * scale_factors[0]
+    y1 = translation[1] + raster.shape[0] * scale_factors[1]
     extent = (x0, x1, y0, y1)
-    cax.imshow(raster_crop, extent=extent, cmap=plt.cm.get_cmap('gray'), alpha=0.4)
+    cax.imshow(
+        raster_crop,
+        extent=extent,
+        cmap=plt.cm.get_cmap("gray"),
+        alpha=0.4,
+        origin="lower",
+    )
     if ax is None:
         plt.show()
 
 
-plot_raster(raster, translation=translation, scale_factor=scale_factor)
+plot_raster(raster, translation=translation, scale_factors=scale_factors)
 ##
 # polygon information
-layers = json.load(open('notebooks/merfish/data/Allen_MERFISH_Layers.geojson', 'r'))
+layers = json.load(open("notebooks/merfish/data/Allen_MERFISH_Layers.geojson", "r"))
 layers
 
 ##
+# I think there is a bug here and things are not plotted aligned, but things are aligned in the napari viewer,
+# that is our real goal
 plt.figure(figsize=(10, 10))
 ax = plt.gca()
 plot_single_molecule_anndata(a_points, ax)
 plot_shape_masks_anndata(a_cells, ax)
-plot_raster(raster, translation=translation, scale_factor=scale_factor, ax=ax)
+plot_raster(raster, translation=translation, scale_factors=scale_factors, ax=ax)
 plt.show()
 
 ##
 brain_layers = {}
-for layer in layers['geometries']:
-    name = layer['name']
-    coordinates = np.array(layer['coordinates'])
+for layer in layers["geometries"]:
+    assert layer["type"] == "Polygon"
+    name = layer["name"]
+    coordinates = np.array(layer["coordinates"])
     coordinates = np.squeeze(coordinates, 0)
     brain_layers[name] = coordinates
 
@@ -258,9 +289,20 @@ for layer in layers['geometries']:
 plt.figure()
 for layer, coordinates in brain_layers.items():
     plt.plot(coordinates[:, 0], coordinates[:, 1])
-plt.gca().set_aspect('equal')
-plt.legend([layer for layer in brain_layers.keys()], loc='upper center', bbox_to_anchor=(.5, 1.25), ncol=3)
+plt.gca().set_aspect("equal")
+plt.legend(
+    [layer for layer in brain_layers.keys()],
+    loc="upper center",
+    bbox_to_anchor=(0.5, 1.25),
+    ncol=3,
+)
 plt.tight_layout()
 plt.show()
 
 ##
+a_polygon = ad.AnnData(None, obs=list(brain_layers.keys()))
+a_polygon.obs.columns = ["layer"]
+a_polygon.obs["vertices"] = list(brain_layers.values())
+# temporary, inefficient arbitrary way of storing the coordinates
+a_polygon.obs["vertices"] = a_polygon.obs["vertices"].apply(lambda x: repr(x))
+a_polygon.write_h5ad(os.path.join(output_dir, "polygons.h5ad"))

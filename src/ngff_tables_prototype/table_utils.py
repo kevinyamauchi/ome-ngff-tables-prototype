@@ -5,9 +5,7 @@ import pandas as pd
 
 
 def df_to_anndata(
-    df: pd.DataFrame,
-    dense_columns: List[str],
-    var: Optional[pd.DataFrame] = None
+    df: pd.DataFrame, dense_columns: List[str], var: Optional[pd.DataFrame] = None
 ) -> AnnData:
     """Create the anndata object from the example csv
     Parameters
@@ -30,12 +28,12 @@ def df_to_anndata(
     dense_array = df[dense_columns].to_numpy()
 
     # drop the dense array from the table
-    obs = df.drop(dense_columns, axis='columns')
+    obs = df.drop(dense_columns, axis="columns")
 
     # create the AnnData object
-    ann_data_kwargs = {'X': dense_array, 'obs': obs, 'dtype': dense_array.dtype}
+    ann_data_kwargs = {"X": dense_array, "obs": obs, "dtype": dense_array.dtype}
     if var is not None:
-        ann_data_kwargs['var'] = var
+        ann_data_kwargs["var"] = var
     ann_obj = AnnData(**ann_data_kwargs)
 
     return ann_obj
