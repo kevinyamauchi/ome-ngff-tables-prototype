@@ -10,9 +10,6 @@ import zarr
 from anndata.experimental import write_elem
 from .table_utils import df_to_anndata
 
-# make function that writes region table
-# function that writes region circles
-
 
 def write_table_points(
     group: zarr.Group,
@@ -28,10 +25,12 @@ def write_table_points(
 def write_table_polygons(
     group: zarr.Group,
     adata: AnnData,
-    table_group_name: str = "shapes_table",
-    group_type: str = "ngff:shapes_table",
+    table_group_name: str = "polygons_table",
+    group_type: str = "ngff:polygons_table",
 ):
-    pass
+    write_elem(group, table_group_name, adata)
+    table_group = group[table_group_name]
+    table_group.attrs["@type"] = group_type
 
 
 def write_table_circles(
@@ -111,7 +110,7 @@ def write_points_dataset(
         points_anndata = df_to_anndata(
             df=points, dense_columns=points_dense_columns, var=points_var
         )
-        write_table(points_group, points_anndata)
+        write_table_points(points_group, points_anndata)
 
         # add a flag to the group attrs to denote this is points data
         points_group.attrs["@type"] = "ngff:points"
@@ -123,6 +122,8 @@ def write_spatial_anndata(
     image: Optional[np.ndarray] = None,
     image_chunks: Union[Tuple[Any, ...], int] = None,
     image_axes: Union[str, List[str]] = None,
+    image_translation: Optional[np.array] = None,
+    image_scale_factors: Optional[np.array] = None,
     # label group
     label_image: Optional[np.ndarray] = None,
     label_name: str = "label_image",
@@ -149,10 +150,14 @@ def write_spatial_anndata(
         Chunking for the image data. See ome-zarr-py for details.
     image_axes : Union[str, List[str]]
         The labels for the image axes. See ome-zarr-py for details.
+    image_translation: Optional[np.array]
+        Translation values, the length is the number of xyz axes present (e.g. 2 for xy images)
+    image_scale_factors: Optional[np.array]
+        Scaling factors for each axis, the length is the number of xyz axes present (e.g. 2 for xy images)
     label_name : Union[str, List[str]]
         The name of the label image. See ome-zarr-py for details.
     label_image : Union[str, List[str]]
-        The label image (raster-mask). See ome-zarr-py for details.
+        The label image (i.e. segmentation mask). See ome-zarr-py for details.
     tables_adata:
         The :class:`anndata.AnnData` table with gene expression and annotations.
     tables_region
@@ -177,33 +182,93 @@ def write_spatial_anndata(
     root = zarr.group(store=store)
 
     if image is not None:
-        # if necessary add the image
-        write_image(image=image, group=root, chunks=image_chunks, axes=image_axes)
+        from ome_zarr.scale import Scaler
+        from ome_zarr.format import CurrentFormat, Format
+
+        scaler = Scaler()
+        fmt: Format = CurrentFormat()
+        coordinate_transformations = None
+        if image_translation is not None or image_scale_factors is not None:
+            translation_values = []
+            for c in image_axes:
+                if c == "x":
+                    translation_values.append(image_translation[0])
+                elif c == "y":
+                    translation_values.append(image_translation[1])
+                else:
+                    translation_values.append(0.0)
+
+            # Even if it is not efficient, lest apply the scaler to dummy data to be sure that the transformations are
+            # correct
+            from ome_zarr.writer import _create_mip
+
+            mip, axes = _create_mip(image, fmt, scaler, image_axes)
+            shapes = [data.shape for data in mip]
+            pyramid_coordinate_transformations = (
+                fmt.generate_coordinate_transformations(shapes)
+            )
+            coordinate_transformations = []
+            for p in pyramid_coordinate_transformations:
+                assert p[0]["type"] == "scale"
+                pyramid_scale = p[0]["scale"]
+                if image_scale_factors is None:
+                    image_scale_factors = np.array([1.0, 1.0])
+                # there is something wrong somewhere
+                # matplotlib shows that the scaling factor is fine, so better create an small artificial dataset and
+                # see where is the error
+                # hack_factor = 1.55
+                hack_factor = 1
+                new_scale = (
+                    np.array(pyramid_scale) * np.flip(image_scale_factors) * hack_factor
+                ).tolist()
+                p[0]["scale"] = new_scale
+                translation = [
+                    {"type": "translation", "translation": translation_values}
+                ]
+                transformation_series = p + translation
+                coordinate_transformations.append(transformation_series)
+                image = np.transpose(image)
+
+        write_image(
+            image=image,
+            group=root,
+            chunks=image_chunks,
+            axes=image_axes,
+            coordinate_transformations=coordinate_transformations,
+            scaler=scaler,
+        )
 
     if label_image is not None:
-        # label_image_group = root.create_group(label_group_name)
+        # i.e. segmentation raster masks
+        # the function write labels will create the group labels, so we pass the root
         write_labels(label_image, group=root, name=label_name)
 
     if tables_adata is not None:
+        # e.g. expression table
+        tables_group = root.create_group(name="tables")
         write_table_regions(
-            root,
-            tables_adata,
+            group=tables_group,
+            adata=tables_adata,
             region=tables_region,
             region_key=tables_region_key,
             instance_key=tables_instance_key,
         )
     if circles_adata is not None:
+        # was it called circles? I didn't take a pic of the whiteboard
+        circles_group = root.create_group(name="circles")
         write_table_circles(
-            root,
-            circles_adata,
+            group=circles_group,
+            adata=circles_adata,
         )
     if polygons_adata is not None:
+        polygons_group = root.create_group(name="polygons")
         write_table_polygons(
-            root,
-            polygons_adata,
+            group=polygons_group,
+            adata=polygons_adata,
         )
     if points_adata is not None:
+        points_group = root.create_group(name="points")
         write_table_points(
-            root,
-            points_adata,
+            group=points_group,
+            adata=points_adata,
         )
