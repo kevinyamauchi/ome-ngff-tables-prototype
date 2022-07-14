@@ -135,3 +135,7 @@ dmypy.json
 .idea
 src/ngff_tables_prototype/_version.py
 .DS_Store
+
+# vim
+*.un~
+*.swp~
