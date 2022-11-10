@@ -19,7 +19,7 @@ def write_table_points(
 ):
     write_elem(group, table_group_name, adata)
     table_group = group[table_group_name]
-    table_group.attrs["@type"] = group_type
+    table_group.attrs["type"] = group_type
 
 
 def write_table_polygons(
@@ -30,7 +30,7 @@ def write_table_polygons(
 ):
     write_elem(group, table_group_name, adata)
     table_group = group[table_group_name]
-    table_group.attrs["@type"] = group_type
+    table_group.attrs["type"] = group_type
 
 
 def write_table_circles(
@@ -55,7 +55,7 @@ def write_table_regions(
 ):
     write_elem(group, table_group_name, adata)
     table_group = group[table_group_name]
-    table_group.attrs["@type"] = group_type
+    table_group.attrs["type"] = group_type
     table_group.attrs["region"] = region
     table_group.attrs["region_key"] = region_key
     table_group.attrs["instance_key"] = instance_key
