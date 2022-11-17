@@ -1,5 +1,6 @@
 from typing import Optional, Union, Tuple, Any, List
 
+import os
 import anndata
 from anndata import AnnData
 import numpy as np
@@ -245,7 +246,8 @@ def write_spatial_anndata(
 
     if tables_adata is not None:
         # e.g. expression table
-        tables_group = root.create_group(name="tables")
+        TABLES_GROUP_NAME = "tables"
+        tables_group = root.create_group(name=TABLES_GROUP_NAME)
         write_table_regions(
             group=tables_group,
             adata=tables_adata,
@@ -253,6 +255,9 @@ def write_spatial_anndata(
             region_key=tables_region_key,
             instance_key=tables_instance_key,
         )
+        # consolidate metadata...
+        store = zarr.DirectoryStore(os.path.join(file_path, TABLES_GROUP_NAME))
+        zarr.consolidate_metadata(store)
     if circles_adata is not None:
         # was it called circles? I didn't take a pic of the whiteboard
         circles_group = root.create_group(name="circles")
