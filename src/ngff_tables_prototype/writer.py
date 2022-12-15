@@ -61,6 +61,16 @@ def write_table_regions(
     table_group.attrs["region_key"] = region_key
     table_group.attrs["instance_key"] = instance_key
 
+    # Simple, local "consolidate_metadata" to list child groups
+    def index_group(grp_name):
+        if grp_name in ["layers", "obsm", "obsp", "raw", "uns"]:
+            keys = []
+            sub_group = table_group[grp_name]
+            sub_group.visit(lambda x: keys.append(x))
+            sub_group.attrs["keys"] = keys
+
+    table_group.visit(index_group)
+
 
 def write_points_dataset(
     file_path: str,
