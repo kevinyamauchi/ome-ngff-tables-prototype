@@ -54,7 +54,10 @@ def write_table_regions(
     instance_key: Optional[str] = None,
 ):
     write_elem(group, table_group_name, adata)
-    group.attrs["tables"] = [table_group_name]
+    # add table_group_name to "tables" list
+    table_attrs = group.attrs.asdict().get("tables", [])
+    table_attrs.append(table_group_name)
+    group.attrs["tables"] = table_attrs
     table_group = group[table_group_name]
     table_group.attrs["type"] = group_type
     table_group.attrs["region"] = region
