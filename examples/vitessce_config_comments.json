@@ -1,0 +1,207 @@
+{
+    "version": "1.0.15",
+    "name": "Test segment OME-NGFF table data",
+    "description": "Example data from https://github.com/kevinyamauchi/ome-ngff-tables-prototype/blob/main/examples/save_load_squidpy_segment.py",
+    "initStrategy": "auto",
+    // Only need a single "datasets" item, with multiple "files"
+    "datasets": [
+      {
+        "uid": "test-segment-anndata",
+        "files": [
+          {
+            "fileType": "anndata.zarr",
+            "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
+            // We use data from this AnnData file in a bunch of ways...
+            "options": {
+                // This points to a 2D array (of 2 columns) for X and Y cell coordinates
+                "obsLocations":{
+                  "path": "obsm/spatial"
+                },
+                // This is 'categorical' AnnData for each cell, used in obsSets and
+                // obsSetSizes components and used to color data in heatmap and spatial
+                "obsSets": [
+                    {
+                      "name": "Cell Type Annotations",
+                      "path": "obs/Cluster"
+                    }
+                ],
+                // Gene expression data, display in the heatmap and also needed for featureList
+                "obsFeatureMatrix": {
+                  "path": "X"
+                },
+                // PCA or UMAP - points to 2D array and displayed in scatterplot component
+                "obsEmbedding": [
+                  {
+                    "path": "obsm/X_umap",
+                    // this value can be anything. Must match embeddingType.A below and is
+                    // shown in scatterplot title e.g. "Scatterplot (UMAP)"
+                    "embeddingType": "UMAP"
+                  }
+                ]
+            }
+          },
+          {
+            // An OME-NGFF image. Currently needs to be v0.3 OME-NGFF, with 'omero' settings
+            // Shown in the spatial and layerController components
+            "type": "raster",
+            "fileType": "raster.ome-zarr",
+            "url": "http://localhost:9000/test_segment.zarr"
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "embeddingType": {
+        "A": "UMAP"
+      },
+      "obsType": {
+        // The type of object the measurements apply to.
+        // E.g. obsSets component "Cell Sets" can toggle obsType - coordinated with lots of
+        // other components.
+        // value can be "cell", "spot" or "bead"? Should match 'Cell Type Annotations' above
+        // if not "cell", it needs to match files[]."coordinationValues"."obsType"
+        // and this still doesn't work for scatterplot?
+        "A": "cell"
+      },
+      "featureType": {
+        // The thing we're measuring? This is always "gene"
+        // Used in featureList title e.g. "Gene List" and heatmap matrix "n cells x y genes"
+        "A": "gene"
+      },
+      "featureValueType": {
+        // The type of data we're measuring is "expression" data (always). Required for heatmap
+        "A": "expression"
+      },
+      "featureValueColormapRange": {
+        // The initial intensity range for gene expression. Required for heatmap
+        "A": [
+          0,
+          1.0
+        ]
+      },
+      "spatialSegmentationLayer": {
+        // Properties of the ROIs shown on the spatial layer
+        "A": {
+          "opacity": 0.25,
+          "radius": 15,
+          "visible": true,
+          "stroked": true
+        }
+      }
+    },
+
+    // layout of the various components on the grid...
+    "layout": [
+      {
+        // Rendering settings for the spatial image
+        // In http://vitessce.io/#?dataset=marshall-2022 this includes 'Bead Segmentations'
+        // but I don't see that working for my spatialSegmentationLayer?
+        "component": "layerController",
+        "x": 0,
+        "y": 2,
+        "w": 2,
+        "h": 8,
+        "coordinationScopes": {
+            "obsType": "A",
+            "featureType": "A",
+            "featureValueType": "A",
+            "spatialSegmentationLayer": "A"
+        }
+      },
+      {
+        // Simple description panel
+        "component": "description",
+        "x": 0,
+        "y": 0,
+        "w": 2,
+        "h": 2
+      },
+      {
+        // Image viewer to show e.g. OME-NGFF image and segmentations
+        "component": "spatial",
+        "x": 2,
+        "y": 0,
+        "w": 4,
+        "h": 12,
+        "coordinationScopes": {
+            "obsType": "A",
+            "featureType": "A",
+            "featureValueType": "A",
+            "spatialSegmentationLayer": "A"
+          }
+      },
+      {
+        // Heatmap of gene expression data
+        "component": "heatmap",
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 6,
+        "coordinationScopes": {
+          "obsType": "A",
+          "featureType": "A",
+          "featureValueType": "A",
+          "featureValueColormapRange": "A"
+        },
+        "props": {
+          // switch "cells" to x axis and "genes" to y axis
+          "transpose": true
+        }
+      },
+      {
+        // hierarchical list (with counts) e.g. "Cell sets" to toggle sets on/off
+        "component": "obsSets",
+        "x": 6,
+        "y": 3,
+        "w": 2,
+        "h": 3,
+        "coordinationScopes": {
+          "obsType": "A"
+        }
+      },
+      {
+        // PCA or UMAP plot
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "embeddingType": "A"
+        },
+        "x": 8,
+        "y": 3,
+        "w": 2,
+        "h": 6
+      },
+      {
+        // e.g. "Gene List". Spatial and scatterplot features are colored
+        // according to expression levels of the selected gene
+        "component": "featureList",
+        "x": 6,
+        "y": 6,
+        "w": 2,
+        "h": 3,
+        "coordinationScopes": {
+          "obsType": "A",
+          "featureType": "A"
+        }
+      },
+      {
+        // Histogram showing counts for the various sets of e.g. Cell type
+        "component": "obsSetSizes",
+        "h": 6,
+        "w": 2,
+        "x": 10,
+        "y": 3,
+        "coordinationScopes": {
+          "obsType": "A"
+        }
+      },
+      {
+        // simple 'status' panel to show errors or debug info
+        "component": "status",
+        "x": 0,
+        "y": 12,
+        "w": 2,
+        "h": 2
+      }
+    ]
+  }
+  
