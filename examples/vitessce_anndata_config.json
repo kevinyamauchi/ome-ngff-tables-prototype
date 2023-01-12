@@ -10,11 +10,6 @@
           {
             "fileType": "anndata.zarr",
             "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
-            "coordinationValues": {
-              "obsType": "cell",
-              "featureType": "gene",
-              "featureValueType": "expression"
-            },
             "options": {
                 "obsLocations":{
                   "path": "obsm/spatial"
