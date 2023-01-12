@@ -1,170 +1,166 @@
 {
-    "version": "1.0.15",
-    "name": "Test segment OME-NGFF table data",
-    "description": "Example data from https://github.com/kevinyamauchi/ome-ngff-tables-prototype/blob/main/examples/save_load_squidpy_segment.py",
-    "initStrategy": "auto",
-    "datasets": [
-      {
-        "uid": "test-segment-anndata",
-        "files": [
-          {
-            "fileType": "anndata.zarr",
-            "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
-            "options": {
-                "obsLocations":{
-                  "path": "obsm/spatial"
-                },
-                "obsSets": [
-                    {
-                      "name": "Cell Type Annotations",
-                      "path": "obs/Cluster"
-                    }
-                ],
-                "obsFeatureMatrix": {
-                  "path": "X"
-                },
-                "obsEmbedding": [
-                  {
-                    "path": "obsm/X_umap",
-                    "embeddingType": "UMAP"
-                  }
-                ]
-            }
-          },
-          {
-            "type": "raster",
-            "fileType": "raster.ome-zarr",
-            "url": "http://localhost:9000/test_segment.zarr"
+  "version": "1.0.15",
+  "name": "Test segment OME-NGFF table data",
+  "description": "Example data from https://github.com/kevinyamauchi/ome-ngff-tables-prototype/blob/main/examples/save_load_squidpy_segment.py",
+  "initStrategy": "auto",
+  "datasets": [
+    {
+      "uid": "test-segment-anndata",
+      "files": [
+        {
+          "fileType": "anndata.zarr",
+          "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
+          "options": {
+            "obsLocations": {
+              "path": "obsm/spatial"
+            },
+            "obsSets": [
+              {
+                "name": "Cell Type Annotations",
+                "path": "obs/Cluster"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X"
+            },
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "embeddingType": "UMAP"
+              }
+            ]
           }
-        ]
-      }
-    ],
-    "coordinationSpace": {
-      "embeddingType": {
-        "A": "UMAP"
-      },
-      "obsType": {
-        "A": "cell"
-      },
-      "featureType": {
-        "A": "gene"
-      },
-      "featureValueType": {
-        "A": "expression"
-      },
-      "featureValueColormapRange": {
-        "A": [
-          0,
-          1.0
-        ]
-      },
-      "spatialSegmentationLayer": {
-        "A": {
-          "opacity": 0.25,
-          "radius": 15,
-          "visible": true,
-          "stroked": true
+        },
+        {
+          "type": "raster",
+          "fileType": "raster.ome-zarr",
+          "url": "http://localhost:9000/test_segment.zarr"
         }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "embeddingType": {
+      "A": "UMAP"
+    },
+    "obsType": {
+      "A": "cell"
+    },
+    "featureType": {
+      "A": "gene"
+    },
+    "featureValueType": {
+      "A": "expression"
+    },
+    "featureValueColormapRange": {
+      "A": [0, 1.0]
+    },
+    "spatialSegmentationLayer": {
+      "A": {
+        "opacity": 0.25,
+        "radius": 15,
+        "visible": true,
+        "stroked": true
+      }
+    }
+  },
+  "layout": [
+    {
+      "component": "layerController",
+      "x": 0,
+      "y": 2,
+      "w": 2,
+      "h": 8,
+      "coordinationScopes": {
+        "obsType": "A",
+        "featureType": "A",
+        "featureValueType": "A",
+        "spatialSegmentationLayer": "A"
       }
     },
-    "layout": [
-      {
-        "component": "layerController",
-        "x": 0,
-        "y": 2,
-        "w": 2,
-        "h": 8,
-        "coordinationScopes": {
-            "obsType": "A",
-            "featureType": "A",
-            "featureValueType": "A",
-            "spatialSegmentationLayer": "A"
-        }
-      },
-      {
-        "component": "description",
-        "x": 0,
-        "y": 0,
-        "w": 2,
-        "h": 2
-      },
-      {
-        "component": "spatial",
-        "x": 2,
-        "y": 0,
-        "w": 4,
-        "h": 12,
-        "coordinationScopes": {
-            "obsType": "A",
-            "featureType": "A",
-            "featureValueType": "A",
-            "spatialSegmentationLayer": "A"
-          }
-      },
-      {
-        "component": "heatmap",
-        "x": 6,
-        "y": 0,
-        "w": 6,
-        "h": 6,
-        "coordinationScopes": {
-          "obsType": "A",
-          "featureType": "A",
-          "featureValueType": "A",
-          "featureValueColormapRange": "A"
-        },
-        "props": {
-          "transpose": true
-        }
-      },
-      {
-        "component": "obsSets",
-        "x": 6,
-        "y": 3,
-        "w": 2,
-        "h": 3,
-        "coordinationScopes": {
-          "obsType": "A"
-        }
-      },
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-          "embeddingType": "A"
-        },
-        "x": 8,
-        "y": 3,
-        "w": 2,
-        "h": 6
-      },
-      {
-        "component": "featureList",
-        "x": 6,
-        "y": 6,
-        "w": 2,
-        "h": 3,
-        "coordinationScopes": {
-          "obsType": "A",
-          "featureType": "A"
-        }
-      },
-      {
-        "component": "obsSetSizes",
-        "h": 6,
-        "w": 2,
-        "x": 10,
-        "y": 3,
-        "coordinationScopes": {
-          "obsType": "A"
-        }
-      },
-      {
-        "component": "status",
-        "x": 0,
-        "y": 12,
-        "w": 2,
-        "h": 2
+    {
+      "component": "description",
+      "x": 0,
+      "y": 0,
+      "w": 2,
+      "h": 2
+    },
+    {
+      "component": "spatial",
+      "x": 2,
+      "y": 0,
+      "w": 4,
+      "h": 12,
+      "coordinationScopes": {
+        "obsType": "A",
+        "featureType": "A",
+        "featureValueType": "A",
+        "spatialSegmentationLayer": "A"
       }
-    ]
-  }
-  
+    },
+    {
+      "component": "heatmap",
+      "x": 6,
+      "y": 0,
+      "w": 6,
+      "h": 6,
+      "coordinationScopes": {
+        "obsType": "A",
+        "featureType": "A",
+        "featureValueType": "A",
+        "featureValueColormapRange": "A"
+      },
+      "props": {
+        "transpose": true
+      }
+    },
+    {
+      "component": "obsSets",
+      "x": 6,
+      "y": 3,
+      "w": 2,
+      "h": 3,
+      "coordinationScopes": {
+        "obsType": "A"
+      }
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "embeddingType": "A"
+      },
+      "x": 8,
+      "y": 3,
+      "w": 2,
+      "h": 6
+    },
+    {
+      "component": "featureList",
+      "x": 6,
+      "y": 6,
+      "w": 2,
+      "h": 3,
+      "coordinationScopes": {
+        "obsType": "A",
+        "featureType": "A"
+      }
+    },
+    {
+      "component": "obsSetSizes",
+      "h": 6,
+      "w": 2,
+      "x": 10,
+      "y": 3,
+      "coordinationScopes": {
+        "obsType": "A"
+      }
+    },
+    {
+      "component": "status",
+      "x": 0,
+      "y": 12,
+      "w": 2,
+      "h": 2
+    }
+  ]
+}
