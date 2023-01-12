@@ -8,19 +8,6 @@
         "uid": "test-segment-anndata",
         "files": [
           {
-            "type": "cells",
-            "fileType": "anndata-cells.zarr",
-            "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
-            "options": {
-              "mappings": {
-                "UMAP": {
-                  "key": "obsm/X_umap",
-                  "dims": [0, 1]
-                }
-              }
-            }
-          },
-          {
             "fileType": "anndata.zarr",
             "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
             "coordinationValues": {
@@ -40,7 +27,13 @@
                 ],
                 "obsFeatureMatrix": {
                   "path": "X"
-                }
+                },
+                "obsEmbedding": [
+                  {
+                    "path": "obsm/X_umap",
+                    "embeddingType": "UMAP"
+                  }
+                ]
             }
           },
           {
