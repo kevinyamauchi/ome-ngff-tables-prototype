@@ -41,7 +41,7 @@
     ],
     "coordinationSpace": {
       "embeddingType": {
-        "ET2": "UMAP"
+        "A": "UMAP"
       },
       "obsType": {
         "A": "cell"
@@ -60,10 +60,10 @@
       },
       "spatialSegmentationLayer": {
         "A": {
-          "opacity": 1,
+          "opacity": 0.25,
           "radius": 15,
           "visible": true,
-          "stroked": false
+          "stroked": true
         }
       }
     },
@@ -115,8 +115,7 @@
         },
         "props": {
           "transpose": true
-        },
-        "uid": "D"
+        }
       },
       {
         "component": "obsSets",
@@ -131,7 +130,7 @@
       {
         "component": "scatterplot",
         "coordinationScopes": {
-          "embeddingType": "ET2"
+          "embeddingType": "A"
         },
         "x": 8,
         "y": 3,
