@@ -32,8 +32,7 @@
           }
         },
         {
-          "type": "raster",
-          "fileType": "raster.ome-zarr",
+          "fileType": "image.ome-zarr",
           "url": "http://localhost:9000/test_segment.zarr"
         }
       ]

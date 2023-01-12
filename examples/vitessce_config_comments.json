@@ -43,8 +43,7 @@
           {
             // An OME-NGFF image. Currently needs to be v0.3 OME-NGFF, with 'omero' settings
             // Shown in the spatial and layerController components
-            "type": "raster",
-            "fileType": "raster.ome-zarr",
+            "fileType": "image.ome-zarr",
             "url": "http://localhost:9000/test_segment.zarr"
           }
         ]
