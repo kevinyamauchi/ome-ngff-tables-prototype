@@ -12,14 +12,9 @@
             "fileType": "anndata-cells.zarr",
             "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
             "options": {
-              "xy": "obsm/spatial",
               "mappings": {
                 "UMAP": {
                   "key": "obsm/X_umap",
-                  "dims": [0, 1]
-                },
-                "PCA": {
-                  "key": "obsm/X_scanorama",
                   "dims": [0, 1]
                 }
               }
@@ -58,7 +53,6 @@
     ],
     "coordinationSpace": {
       "embeddingType": {
-        "ET1": "PCA",
         "ET2": "UMAP"
       },
       "obsType": {
