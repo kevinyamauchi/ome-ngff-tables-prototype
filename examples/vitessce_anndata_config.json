@@ -1,0 +1,189 @@
+{
+    "version": "1.0.15",
+    "name": "Test segment OME-NGFF table data",
+    "description": "Example data from https://github.com/kevinyamauchi/ome-ngff-tables-prototype/blob/main/examples/save_load_squidpy_segment.py",
+    "initStrategy": "auto",
+    "datasets": [
+      {
+        "uid": "test-segment-anndata",
+        "files": [
+          {
+            "type": "cells",
+            "fileType": "anndata-cells.zarr",
+            "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
+            "options": {
+              "xy": "obsm/spatial",
+              "mappings": {
+                "UMAP": {
+                  "key": "obsm/X_umap",
+                  "dims": [0, 1]
+                },
+                "PCA": {
+                  "key": "obsm/X_scanorama",
+                  "dims": [0, 1]
+                }
+              }
+            }
+          },
+          {
+            "fileType": "anndata.zarr",
+            "url": "http://localhost:9000/test_segment.zarr/tables/regions_table",
+            "coordinationValues": {
+              "obsType": "cell",
+              "featureType": "gene",
+              "featureValueType": "expression"
+            },
+            "options": {
+                "obsLocations":{
+                  "path": "obsm/spatial"
+                },
+                "obsSets": [
+                    {
+                      "name": "Cell Type Annotations",
+                      "path": "obs/Cluster"
+                    }
+                ],
+                "obsFeatureMatrix": {
+                  "path": "X"
+                }
+            }
+          },
+          {
+            "type": "raster",
+            "fileType": "raster.ome-zarr",
+            "url": "http://localhost:9000/test_segment.zarr"
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "embeddingType": {
+        "ET1": "PCA",
+        "ET2": "UMAP"
+      },
+      "obsType": {
+        "A": "cell"
+      },
+      "featureType": {
+        "A": "gene"
+      },
+      "featureValueType": {
+        "A": "expression"
+      },
+      "featureValueColormapRange": {
+        "A": [
+          0,
+          1.0
+        ]
+      },
+      "spatialSegmentationLayer": {
+        "A": {
+          "opacity": 1,
+          "radius": 15,
+          "visible": true,
+          "stroked": false
+        }
+      }
+    },
+    "layout": [
+      {
+        "component": "layerController",
+        "x": 0,
+        "y": 2,
+        "w": 2,
+        "h": 8,
+        "coordinationScopes": {
+            "obsType": "A",
+            "featureType": "A",
+            "featureValueType": "A",
+            "spatialSegmentationLayer": "A"
+        }
+      },
+      {
+        "component": "description",
+        "x": 0,
+        "y": 0,
+        "w": 2,
+        "h": 2
+      },
+      {
+        "component": "spatial",
+        "x": 2,
+        "y": 0,
+        "w": 4,
+        "h": 12,
+        "coordinationScopes": {
+            "obsType": "A",
+            "featureType": "A",
+            "featureValueType": "A",
+            "spatialSegmentationLayer": "A"
+          }
+      },
+      {
+        "component": "heatmap",
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 6,
+        "coordinationScopes": {
+          "obsType": "A",
+          "featureType": "A",
+          "featureValueType": "A",
+          "featureValueColormapRange": "A"
+        },
+        "props": {
+          "transpose": true
+        },
+        "uid": "D"
+      },
+      {
+        "component": "obsSets",
+        "x": 6,
+        "y": 3,
+        "w": 2,
+        "h": 3,
+        "coordinationScopes": {
+          "obsType": "A"
+        }
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "embeddingType": "ET2"
+        },
+        "x": 8,
+        "y": 3,
+        "w": 2,
+        "h": 6
+      },
+      {
+        "component": "featureList",
+        "x": 6,
+        "y": 6,
+        "w": 2,
+        "h": 3,
+        "coordinationScopes": {
+          "obsType": "A",
+          "featureType": "A"
+        }
+      },
+      {
+        "component": "obsSetSizes",
+        "h": 6,
+        "w": 2,
+        "x": 10,
+        "y": 3,
+        "coordinationScopes": {
+          "obsType": "A"
+        }
+      },
+      {
+        "component": "status",
+        "x": 0,
+        "y": 12,
+        "w": 2,
+        "h": 2
+      }
+    ]
+  }
+  
