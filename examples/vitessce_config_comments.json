@@ -93,8 +93,6 @@
     "layout": [
       {
         // Rendering settings for the spatial image
-        // In http://vitessce.io/#?dataset=marshall-2022 this includes 'Bead Segmentations'
-        // but I don't see that working for my spatialSegmentationLayer?
         "component": "layerController",
         "x": 0,
         "y": 2,
