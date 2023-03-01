@@ -302,15 +302,16 @@ def get_napari_points_layer_data(
 
     ome_zarr = parse_url(file_path)
     table_group = zarr.group(ome_zarr.store)[points_group_key]
-    assert (
-        "@type" in table_group.attrs
-        and table_group.attrs["@type"] == "ngff:points_table"
-    )
+    print("table_group.attrs", table_group.attrs.asdict())
+    # assert (
+    #     "type" in table_group.attrs
+    #     and table_group.attrs["type"] == "ngff:points_table"
+    # )
 
     # what is layer_properties for? notice that not all the layers set this
     layer_properties = anndata_obj.obs
     new_layer_data = (
-        np.fliplr(anndata_obj.X),
+        anndata_obj.X,
         {"edge_width": 0.0, "size": 1, "properties": layer_properties},
         "points",
     )
