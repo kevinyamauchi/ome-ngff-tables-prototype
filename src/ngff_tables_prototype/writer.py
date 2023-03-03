@@ -70,6 +70,9 @@ def write_table_regions(
             keys = []
             sub_group = table_group[grp_name]
             sub_group.visit(lambda x: keys.append(x))
+            # we only want 1 level. E.g. for obsp we want "subkey" but
+            # not "subkey/data", "subkey/indices", "subkey/indptr"
+            keys = [key for key in keys if "/" not in key]
             sub_group.attrs["keys"] = keys
 
     table_group.visit(index_group)
