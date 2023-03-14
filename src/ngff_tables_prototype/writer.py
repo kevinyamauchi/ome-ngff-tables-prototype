@@ -17,9 +17,7 @@ def write_table_points(
     table_group_name: str = "points_table",
     group_type: str = "ngff:points_table",
 ):
-    write_elem(group, table_group_name, adata)
-    table_group = group[table_group_name]
-    table_group.attrs["type"] = group_type
+    write_table_data(group, adata, table_group_name, group_type)
 
 
 def write_table_polygons(
@@ -28,9 +26,7 @@ def write_table_polygons(
     table_group_name: str = "polygons_table",
     group_type: str = "ngff:polygons_table",
 ):
-    write_elem(group, table_group_name, adata)
-    table_group = group[table_group_name]
-    table_group.attrs["type"] = group_type
+    write_table_data(group, adata, table_group_name, group_type)
 
 
 def write_table_circles(
@@ -39,9 +35,7 @@ def write_table_circles(
     table_group_name: str = "circles_table",
     group_type: str = "ngff:circles_table",
 ):
-    write_elem(group, table_group_name, adata)
-    table_group = group[table_group_name]
-    table_group.attrs["@type"] = group_type
+    write_table_data(group, adata, table_group_name, group_type)
 
 
 def write_table_regions(
@@ -53,16 +47,32 @@ def write_table_regions(
     region_key: Optional[str] = None,
     instance_key: Optional[str] = None,
 ):
+    write_table_data(group, adata, table_group_name, group_type, region, region_key, instance_key)
+
+
+def write_table_data(
+    group: zarr.Group,
+    adata: AnnData,
+    table_group_name: str,
+    group_type: str = "ngff:regions_table",
+    region: Optional[Union[str, List[str]]] = None,
+    region_key: Optional[str] = None,
+    instance_key: Optional[str] = None,
+):
     write_elem(group, table_group_name, adata)
     # add table_group_name to "tables" list
     table_attrs = group.attrs.asdict().get("tables", [])
     table_attrs.append(table_group_name)
+    print("writing table_attrs", table_attrs)
     group.attrs["tables"] = table_attrs
     table_group = group[table_group_name]
     table_group.attrs["type"] = group_type
-    table_group.attrs["region"] = region
-    table_group.attrs["region_key"] = region_key
-    table_group.attrs["instance_key"] = instance_key
+    if region_key is not None:
+        table_group.attrs["region"] = region
+    if region_key is not None:
+        table_group.attrs["region_key"] = region_key
+    if instance_key is not None:
+        table_group.attrs["instance_key"] = instance_key
 
     # Simple, local "consolidate_metadata" to list child groups
     def index_group(grp_name):
