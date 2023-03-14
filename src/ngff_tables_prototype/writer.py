@@ -63,7 +63,6 @@ def write_table_data(
     # add table_group_name to "tables" list
     table_attrs = group.attrs.asdict().get("tables", [])
     table_attrs.append(table_group_name)
-    print("writing table_attrs", table_attrs)
     group.attrs["tables"] = table_attrs
     table_group = group[table_group_name]
     table_group.attrs["type"] = group_type
