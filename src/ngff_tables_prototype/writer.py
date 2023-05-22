@@ -144,6 +144,7 @@ def write_spatial_anndata(
     # label group
     label_image: Optional[np.ndarray] = None,
     label_name: str = "label_image",
+    label_axes: list = ['y', 'x'],
     # table group
     tables_adata: Optional[AnnData] = None,
     tables_region: Optional[Union[str, List[str]]] = None,
@@ -175,6 +176,8 @@ def write_spatial_anndata(
         The name of the label image. See ome-zarr-py for details.
     label_image : Union[str, List[str]]
         The label image (i.e. segmentation mask). See ome-zarr-py for details.
+    label_axes: list
+        The labels for the label image axes. See ome-zarr-py for details. Defaults to ['y', 'x'] for 2D images
     tables_adata:
         The :class:`anndata.AnnData` table with gene expression and annotations.
     tables_region
@@ -258,7 +261,7 @@ def write_spatial_anndata(
     if label_image is not None:
         # i.e. segmentation raster masks
         # the function write labels will create the group labels, so we pass the root
-        write_labels(label_image, group=root, name=label_name)
+        write_labels(label_image, group=root, name=label_name, axes=label_axes)
 
     if tables_adata is not None:
         # e.g. expression table
