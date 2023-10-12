@@ -12,7 +12,7 @@ from napari_ome_zarr._reader import transform
 from napari.types import LayerDataTuple
 import pandas as pd
 import zarr
-from typing import Union, Optional
+from typing import Union, Optional, List
 import warnings
 import dask.array as da
 
@@ -375,7 +375,7 @@ def _get_layer(file_path: str, group_key: str) -> LayerDataTuple:
 
 
 def load_to_napari_viewer(
-    file_path: str, groups: Union[str, list[str]]
+    file_path: str, groups: Union[str, List[str]]
 ) -> napari.Viewer:
     """launch the napari viewer with the specified groups (layers) loaded. The image is loaded by default
 
